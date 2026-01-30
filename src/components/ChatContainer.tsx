@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
-import { ChatMessage as ChatMessageType } from '../types/chat';
-import { ChatMessage } from './ChatMessage';
-import { ChatInput } from './ChatInput';
-import { TypingIndicator } from './TypingIndicator';
-import { ChatAPI } from '../services/api';
-import { Bot, Moon, Sun } from 'lucide-react';
+import { useState, useEffect, useRef } from "react";
+import { ChatMessage as ChatMessageType } from "../types/chat";
+import { ChatMessage } from "./ChatMessage";
+import { ChatInput } from "./ChatInput";
+import { TypingIndicator } from "./TypingIndicator";
+import { ChatAPI } from "../services/api";
+import { Bot, Moon, Sun } from "lucide-react";
 
 interface ChatContainerProps {
   sessionId: string | null;
@@ -13,14 +13,28 @@ interface ChatContainerProps {
   onToggleDark: () => void;
 }
 
-export function ChatContainer({ sessionId, onSessionCreated, isDark, onToggleDark }: ChatContainerProps) {
+export function ChatContainer({
+  sessionId,
+  onSessionCreated,
+  isDark,
+  onToggleDark,
+}: ChatContainerProps) {
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // 1. Change ref to point to the scrollable container, not a dummy div
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // 2. Use scrollTo on the container directly
+    if (scrollContainerRef.current) {
+      const { scrollHeight, clientHeight } = scrollContainerRef.current;
+      scrollContainerRef.current.scrollTo({
+        top: scrollHeight - clientHeight,
+        behavior: "smooth",
+      });
+    }
   };
 
   useEffect(() => {
@@ -43,37 +57,58 @@ export function ChatContainer({ sessionId, onSessionCreated, isDark, onToggleDar
       const history = await ChatAPI.getSessionHistory(sessionId);
       setMessages(history.messages);
     } catch (error) {
-      console.error('Failed to load session history:', error);
+      console.error("Failed to load session history:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleSendMessage = async (content: string) => {
+    // 1. Create a temporary message object to show immediately
+    const tempId = Date.now().toString();
+    const tempUserMessage: ChatMessageType = {
+      id: tempId,
+      role: "user",
+      content: content,
+      created_at: new Date().toISOString(),
+      session_id: sessionId || "", // specific to your type definition
+    };
+
     try {
+      // 2. Add the temporary message to the UI immediately
+      setMessages((prev) => [...prev, tempUserMessage]);
       setIsTyping(true);
 
-      const response = await ChatAPI.sendMessage(content, sessionId || undefined);
+      // 3. Send the request
+      const response = await ChatAPI.sendMessage(
+        content,
+        sessionId || undefined,
+      );
 
-      setMessages((prev) => [
-        ...prev,
-        response.user_message,
-        response.assistant_message,
-      ]);
+      // 4. Once response comes back:
+      // - Replace the temporary user message with the real one from server (to get real ID/timestamp)
+      // - Append the assistant's message
+      setMessages((prev) =>
+        prev
+          .map((msg) => (msg.id === tempId ? response.user_message : msg))
+          .concat(response.assistant_message),
+      );
 
       if (!sessionId) {
         onSessionCreated(response.session_id);
       }
     } catch (error) {
-      console.error('Failed to send message:', error);
-      alert('Failed to send message. Please try again.');
+      console.error("Failed to send message:", error);
+      alert("Failed to send message. Please try again.");
+      // Optional: Remove the temp message if sending failed
+      setMessages((prev) => prev.filter((msg) => msg.id !== tempId));
     } finally {
       setIsTyping(false);
     }
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-slate-50 dark:bg-slate-900">
+    <div className="flex-1 flex flex-col h-full bg-slate-50 dark:bg-slate-900 min-h-0">
       <div className="border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-6 py-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -103,14 +138,18 @@ export function ChatContainer({ sessionId, onSessionCreated, isDark, onToggleDar
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-6 py-6">
+      {/* 3. Attach the ref to the scrollable div */}
+      <div
+        ref={scrollContainerRef}
+        className="flex-1 min-h-0 overflow-y-auto px-6 py-6"
+      >
         <div className="max-w-4xl mx-auto">
           {isLoading ? (
             <div className="flex items-center justify-center h-full">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
             </div>
           ) : messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center py-12">
+            <div className="flex flex-col items-center justify-center text-center py-12">
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-xl mb-4">
                 <Bot className="w-10 h-10 text-white" />
               </div>
@@ -118,7 +157,8 @@ export function ChatContainer({ sessionId, onSessionCreated, isDark, onToggleDar
                 Start a Conversation
               </h2>
               <p className="text-slate-500 dark:text-slate-400 max-w-md">
-                Send a message to begin chatting with your AI assistant. Ask questions, get help, or just have a conversation!
+                Send a message to begin chatting with your AI assistant. Ask
+                questions, get help, or just have a conversation!
               </p>
             </div>
           ) : (
@@ -129,7 +169,7 @@ export function ChatContainer({ sessionId, onSessionCreated, isDark, onToggleDar
               {isTyping && <TypingIndicator />}
             </>
           )}
-          <div ref={messagesEndRef} />
+          {/* Removed the messagesEndRef div since we scroll the container directly */}
         </div>
       </div>
 

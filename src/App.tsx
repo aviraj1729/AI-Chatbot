@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { ChatContainer } from './components/ChatContainer';
-import { Sidebar } from './components/Sidebar';
-import { ChatSession } from './types/chat';
-import { ChatAPI } from './services/api';
-import { useDarkMode } from './hooks/useDarkMode';
+import { useState, useEffect } from "react";
+import { ChatContainer } from "./components/ChatContainer";
+import { Sidebar } from "./components/Sidebar";
+import { ChatSession } from "./types/chat";
+import { ChatAPI } from "./services/api";
+import { useDarkMode } from "./hooks/useDarkMode";
 
 function App() {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
@@ -19,7 +19,7 @@ function App() {
       const fetchedSessions = await ChatAPI.getSessions();
       setSessions(fetchedSessions);
     } catch (error) {
-      console.error('Failed to load sessions:', error);
+      console.error("Failed to load sessions:", error);
     }
   };
 
@@ -44,12 +44,13 @@ function App() {
       }
       loadSessions();
     } catch (error) {
-      console.error('Failed to delete session:', error);
+      console.error("Failed to delete session:", error);
     }
   };
 
   return (
-    <div className="h-screen flex overflow-hidden bg-slate-50 dark:bg-slate-900">
+    // CHANGE: Use 'fixed inset-0' instead of 'h-dvh' to strictly lock the layout
+    <div className="fixed inset-0 flex overflow-hidden bg-slate-50 dark:bg-slate-900">
       <Sidebar
         sessions={sessions}
         currentSessionId={currentSessionId}

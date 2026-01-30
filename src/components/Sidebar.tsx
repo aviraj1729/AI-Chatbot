@@ -1,5 +1,5 @@
-import { ChatSession } from '../types/chat';
-import { MessageSquarePlus, Trash2, MessageSquare } from 'lucide-react';
+import { ChatSession } from "../types/chat";
+import { MessageSquarePlus, Trash2, MessageSquare } from "lucide-react";
 
 interface SidebarProps {
   sessions: ChatSession[];
@@ -14,10 +14,10 @@ export function Sidebar({
   currentSessionId,
   onSelectSession,
   onNewChat,
-  onDeleteSession
+  onDeleteSession,
 }: SidebarProps) {
   return (
-    <div className="w-64 border-r border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 flex flex-col h-full">
+    <div className="w-64 border-r border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 flex flex-col h-full min-h-0">
       <div className="p-4 border-b border-slate-200 dark:border-slate-700">
         <button
           onClick={onNewChat}
@@ -32,7 +32,9 @@ export function Sidebar({
         {sessions.length === 0 ? (
           <div className="text-center py-8 px-4">
             <MessageSquare className="w-8 h-8 text-slate-400 dark:text-slate-600 mx-auto mb-2" />
-            <p className="text-sm text-slate-500 dark:text-slate-400">No chat history yet</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              No chat history yet
+            </p>
           </div>
         ) : (
           <div className="space-y-1">
@@ -41,8 +43,8 @@ export function Sidebar({
                 key={session.id}
                 className={`group flex items-center gap-2 px-3 py-2.5 rounded-lg cursor-pointer transition-all ${
                   currentSessionId === session.id
-                    ? 'bg-white dark:bg-slate-800 shadow-sm'
-                    : 'hover:bg-white/50 dark:hover:bg-slate-800/50'
+                    ? "bg-white dark:bg-slate-800 shadow-sm"
+                    : "hover:bg-white/50 dark:hover:bg-slate-800/50"
                 }`}
                 onClick={() => onSelectSession(session.id)}
               >

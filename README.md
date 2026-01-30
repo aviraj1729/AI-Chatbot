@@ -16,12 +16,14 @@ A production-ready full-stack chatbot application built with FastAPI (backend) a
 ## Tech Stack
 
 ### Backend
+
 - **FastAPI**: Modern Python web framework
-- **Supabase**: PostgreSQL database for data persistence
+- **Neon(PostgreSQL)**: PostgreSQL database for data persistence
 - **Pydantic**: Data validation and settings management
 - **Python 3.10+**: Latest Python features
 
 ### Frontend
+
 - **React 18**: Modern React with hooks
 - **TypeScript**: Type-safe development
 - **Tailwind CSS**: Utility-first styling
@@ -64,7 +66,7 @@ project/
 - Python 3.10 or higher
 - Node.js 18 or higher
 - npm or yarn
-- Supabase account (database is already set up)
+- Neon account (database is already set up)
 
 ## Installation & Setup
 
@@ -111,6 +113,7 @@ The frontend will run on `http://localhost:5173`
 ## API Documentation
 
 Once the backend is running, visit:
+
 - **Swagger UI**: http://localhost:8000/docs
 - **ReDoc**: http://localhost:8000/redoc
 
@@ -142,6 +145,7 @@ Once the backend is running, visit:
 The application uses two main tables:
 
 ### chat_sessions
+
 - `id` (uuid): Session identifier
 - `user_id` (uuid): Optional user identifier
 - `session_name` (text): Display name for the session
@@ -149,6 +153,7 @@ The application uses two main tables:
 - `updated_at` (timestamp): Last update time
 
 ### chat_messages
+
 - `id` (uuid): Message identifier
 - `session_id` (uuid): Foreign key to chat_sessions
 - `role` (text): Either 'user' or 'assistant'
@@ -157,22 +162,25 @@ The application uses two main tables:
 
 ## Customization
 
-### Adding OpenAI Integration
+### Adding Gemini Integration
 
-Replace the mock AI service with OpenAI:
+Replace the mock AI service with Gemini:
 
-1. Install OpenAI SDK:
+1. Install Gemini SDK:
+
 ```bash
 cd backend
-pip install openai
+pip install google-genai
 ```
 
 2. Add API key to `.env`:
+
 ```
-OPENAI_API_KEY=your_key_here
+GEMINI_API_KEY=your_key_here
+DATABSE_URL=your_url_here
 ```
 
-3. Update `backend/services/ai_service.py` to use OpenAI API
+3. Update `backend/services/ai_service.py` to use Gemini API
 
 ### Styling
 
@@ -186,6 +194,7 @@ OPENAI_API_KEY=your_key_here
 
 1. Set up environment variables in production
 2. Use a production WSGI server like Gunicorn:
+
 ```bash
 pip install gunicorn
 gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app
@@ -194,6 +203,7 @@ gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app
 ### Frontend
 
 1. Build the production bundle:
+
 ```bash
 npm run build
 ```
