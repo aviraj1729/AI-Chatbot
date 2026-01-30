@@ -18,7 +18,7 @@ class AIService:
         self.client = genai.Client(api_key=api_key)
 
         # ✅ Use the latest stable model
-        self.model = "gemini-2.5-flash"  # Latest stable (June 2025) - RECOMMENDED
+        self.model = "gemini-3-flash-preview"  # Latest stable (June 2025) - RECOMMENDED
         # Alternative options:
         # self.model = "gemini-2.5-pro"  # More powerful, slower
         # self.model = "gemini-flash-latest"  # Always latest flash version
